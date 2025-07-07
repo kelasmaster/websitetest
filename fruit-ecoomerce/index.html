@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>React App</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React and ReactDOM from CDN -->
+  <script src="https://unpkg.com/react @18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom @18/umd/react-dom.development.js" crossorigin></script>
+
+  <!-- Babel to compile JSX -->
+  <script src="https://unpkg.com/ @babel/standalone/babel.min.js"></script>
+
+  <!-- Your JSX code here -->
+ <script>
+  import { useState, useEffect } from 'react';
+
+const App = () => {
+  const [cart, setCart] = useState([]);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const fruits = [
+    { id: 1, name: 'Apple', price: 2.99, category: 'Citrus', image: 'https://placehold.co/300x200?text=Apple' },
+    { id: 2, name: 'Banana', price: 1.49, category: 'Tropical', image: ' https://placehold.co/300x200?text=Banana' },
+    { id: 3, name: 'Orange', price: 3.49, category: 'Citrus', image: ' https://placehold.co/300x200?text=Orange' },
+    { id: 4, name: 'Mango', price: 4.99, category: 'Tropical', image: ' https://placehold.co/300x200?text=Mango' },
+    { id: 5, name: 'Grapes', price: 2.79, category: 'Berries', image: ' https://placehold.co/300x200?text=Grapes' },
+    { id: 6, name: 'Strawberry', price: 4.29, category: 'Berries', image: ' https://placehold.co/300x200?text=Strawberry' },
+    { id: 7, name: 'Pineapple', price: 3.99, category: 'Tropical', image: ' https://placehold.co/300x200?text=Pineapple' },
+    { id: 8, name: 'Lemon', price: 1.99, category: 'Citrus', image: ' https://placehold.co/300x200?text=Lemon' },
+  ];
+
+  const categories = ['All', ...new Set(fruits.map(fruit => fruit.category))];
+
+  const addToCart = (fruit) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.id === fruit.id);
+      if (existingItem) {
+        return prevCart.map(item =>
+          item.id === fruit.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prevCart, { ...fruit, quantity: 1 }];
+    });
+  };
+
+  const removeFromCart = (id) => {
+    setCart(prevCart => prevCart.filter(item => item.id !== id));
+  };
+
+  const updateQuantity = (id, change) => {
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item.id === id && item.quantity + change > 0
+          ? { ...item, quantity: item.quantity + change }
+          : item
+      ).filter(item => item.quantity > 0)
+    );
+  };
+
+  const filteredFruits = fruits.filter(fruit => {
+    const matchesCategory = activeCategory === 'All' || fruit.category === activeCategory;
+    const matchesSearch = fruit.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+  const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <svg className="w-8 h-8 text-green-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/>
+              <path d="M12 6c-3.31 0-6 2.69-6 6 0 1.31.42 2.51 1.11 3.45L5.79 17.77c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.41-1.41A5.975 5.975 0 0012 18c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" fill="currentColor"/>
+            </svg>
+            <h1 className="text-xl font-bold text-gray-800">FreshFruit</h1>
+          </div>
+
+          <div className="hidden md:flex items-center space-x-6">
+            <nav className="flex space-x-6">
+              <a href="#" className="text-gray-600 hover:text-green-600 transition-colors">Home</a>
+              <a href="#" className="text-gray-600 hover:text-green-600 transition-colors">Shop</a>
+              <a href="#" className="text-gray-600 hover:text-green-600 transition-colors">About</a>
+              <a href="#" className="text-gray-600 hover:text-green-600 transition-colors">Contact</a>
+            </nav>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              <svg className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <button 
+              onClick={() => setIsCartOpen(!isCartOpen)}
+              className="relative p-2 text-gray-600 hover:text-green-600 transition-colors"
+            >
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 6V5C16 3.9 15.1 3 14 3H6C4.9 3 4 3.9 4 5V6H2V8H4V18C4 19.1 4.9 20 6 20H18C19.1 20 20 19.1 20 18V8H22V6H16ZM6 5H14V6H6V5ZM18 18H6V8H18V18Z" fill="currentColor"/>
+              </svg>
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-green-400 to-emerald-500 text-white py-16">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center">
+          <div className="md:w-1/2 mb-8 md:mb-0">
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight mb-4">Discover the Freshest Fruits</h2>
+            <p className="text-lg md:text-xl mb-6">Nourish your body with nature's sweetest gifts. Organic, fresh and delivered to your doorstep.</p>
+            <button className="bg-white text-green-600 hover:bg-green-100 px-6 py-3 rounded-full font-semibold transition-colors">
+              Shop Now
+            </button>
+          </div>
+          <div className="md:w-1/2 flex justify-center">
+            <img src=" https://placehold.co/600x400?text=Fruit+Basket" alt="Fresh Fruits" className="rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300" />
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">Shop by Category</h3>
+          <div className="flex overflow-x-auto pb-4 space-x-4 scrollbar-hide">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-6 py-3 rounded-full whitespace-nowrap transition-all ${
+                  activeCategory === category 
+                    ? 'bg-green-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Product Grid */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">Our Fresh Fruits</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {filteredFruits.map(fruit => (
+              <div 
+                key={fruit.id} 
+                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
+              >
+                <img src={fruit.image} alt={fruit.name} className="w-full h-48 object-cover" />
+                <div className="p-4">
+                  <h4 className="font-semibold text-lg text-gray-800">{fruit.name}</h4>
+                  <p className="text-green-600 font-bold mt-1">${fruit.price.toFixed(2)}</p>
+                  <button 
+                    onClick={() => addToCart(fruit)}
+                    className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded transition-colors"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h4 className="text-xl font-bold mb-4">FreshFruit</h4>
+              <p className="text-gray-400">Bringing you the freshest produce from local farms directly to your home.</p>
+            </div>
+            <div>
+              <h4 className="text-xl font-bold mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Shop</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-xl font-bold mb-4">Categories</h4>
+              <ul className="space-y-2">
+                {categories.map(category => (
+                  <li key={category}>
+                    <a href="#" className="text-gray-400 hover:text-white transition-colors">{category}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-xl font-bold mb-4">Subscribe</h4>
+              <p className="text-gray-400 mb-4">Stay updated with our latest offers and news.</p>
+              <form className="flex">
+                <input 
+                  type="email" 
+                  placeholder="Your email" 
+                  className="px-4 py-2 w-full rounded-l focus:outline-none"
+                />
+                <button className="bg-green-600 hover:bg-green-700 text-white px-4 rounded-r transition-colors">
+                  Subscribe
+                </button>
+              </form>
+            </div>
+          </div>
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; {new Date().getFullYear()} FreshFruit. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Shopping Cart Sidebar */}
+      <div className={`fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-lg transform ${isCartOpen ? 'translate-x-0' : 'translate-x-full'} transition-transform duration-300 ease-in-out z-50`}>
+        <div className="h-full flex flex-col">
+          <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h3 className="text-xl font-bold text-gray-800">Shopping Cart</h3>
+            <button 
+              onClick={() => setIsCartOpen(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <div className="flex-grow overflow-y-auto p-6">
+            {cart.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                <svg className="w-16 h-16 text-gray-400 mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 5H7C5.9 5 5 5.9 5 7V19C5 20.1 5.9 21 7 21H17C18.1 21 19 20.1 19 19V7C19 5.9 18.1 5 17 5H15M9 5C9 6.1 9.9 7 11 7H13C14.1 7 15 6.1 15 5M9 5C9 3.9 9.9 3 11 3H13C14.1 3 15 3.9 15 5M12 12L12 16M12 16L14 14M12 16L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <p className="text-gray-500 text-lg">Your cart is empty</p>
+              </div>
+            ) : (
+              <ul className="space-y-4">
+                {cart.map(item => (
+                  <li key={item.id} className="flex items-center space-x-4 p-3 border rounded-lg">
+                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                    <div className="flex-grow">
+                      <h4 className="font-medium text-gray-800">{item.name}</h4>
+                      <p className="text-green-600 font-bold">${item.price.toFixed(2)}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button 
+                        onClick={() => updateQuantity(item.id, -1)}
+                        className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center">{item.quantity}</span>
+                      <button 
+                        onClick={() => updateQuantity(item.id, 1)}
+                        className="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button 
+                      onClick={() => removeFromCart(item.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          
+          {cart.length > 0 && (
+            <div className="p-6 border-t border-gray-200">
+              <div className="flex justify-between mb-4">
+                <span className="font-bold text-gray-700">Total:</span>
+                <span className="font-bold text-green-600">${cartTotal}</span>
+              </div>
+              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded transition-colors">
+                Checkout
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Overlay when cart is open */}
+      {isCartOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setIsCartOpen(false)}
+        ></div>
+      )}
+    </div>
+  );
+};
+
+export default App;
+ </script>
+</body>
+</html>
