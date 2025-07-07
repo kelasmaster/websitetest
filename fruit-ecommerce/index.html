@@ -7,25 +7,25 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com "></script>
 </head>
-<body>
+<body class="bg-gray-100">
+
+  <!-- Root div where React will render -->
   <div id="root"></div>
 
-  <!-- React and ReactDOM from CDN -->
+  <!-- React and ReactDOM -->
   <script src="https://unpkg.com/react @18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom @18/umd/react-dom.development.js" crossorigin></script>
-  
-  <!-- Babel for JSX support -->
+
+  <!-- Babel compiler -->
   <script src="https://unpkg.com/ @babel/standalone/babel.min.js"></script>
 
-  <!-- React App Script -->
+  <!-- React JSX Code -->
   <script type="text/babel">
-    const { useState } = React;
-
-    function App() {
-      const [cart, setCart] = useState([]);
-      const [activeCategory, setActiveCategory] = useState('All');
-      const [searchTerm, setSearchTerm] = useState('');
-      const [isCartOpen, setIsCartOpen] = useState(false);
+    const App = () => {
+      const [cart, setCart] = React.useState([]);
+      const [activeCategory, setActiveCategory] = React.useState('All');
+      const [searchTerm, setSearchTerm] = React.useState('');
+      const [isCartOpen, setIsCartOpen] = React.useState(false);
 
       const fruits = [
         { id: 1, name: 'Apple', price: 2.99, category: 'Citrus', image: 'https://placehold.co/300x200?text=Apple' },
